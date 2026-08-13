@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EzOne Admin — Vertical Menu</title>
+<!-- Roboto per Figma (user-approved web font) -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  /* ============================================================
+     EzOne Design Tokens — mapped from EzOne_DesignTokens.md (Light mode)
+     Figma: node 57542:63646 (expanded) + 17526:62994 (collapsed drawer)
+     ============================================================ */
+  :root {
+    --theme-action-hover: #2F2B3D0F;
+    --theme-action-selected: #2F2B3D14;
+    --theme-divider: #2F2B3D1F;
+    --theme-input-border: #2F2B3D38;
+    --theme-text-primary: #2F2B3DE5;
+    --theme-text-secondary: #2F2B3DB2;
+    --theme-text-disabled: #2F2B3D66;
+
+    --color-palette-primary-main: #186FF4;
+    --color-palette-primary-dark: #1562D7;
+    --color-palette-error-main: #FF4C51;
+
+    /* Logo (EzOne.DesignLibrary — Logo phân hệ node 23374:134746) */
+    --logo-emblem: #758D9F;  /* text-tertiary — emblem circle */
+    --logo-ez: #00A2E1;      /* accent-alt */
+    --logo-one: #004BA5;     /* accent */
+    --logo-admin: #758D9F;   /* text-tertiary */
+
+    --misc-paper: #FFFFFF;
+    --misc-body-bg: #F8F7FA;
+    --misc-bg-white-text: #FFFFFF;
+    --misc-avatar-bg: #EEEDF0;
+    --misc-card-header: 4px;
+
+    --border-radius-sm: 4px;
+    --border-radius-md: 6px;
+    --border-round: 500px;
+
+    --padding-1: 4px;
+    --padding-2: 8px;
+    --padding-3: 12px;
+    --padding-4: 16px;
+
+    --gap-2: 8px;
+    --gap-3: 12px;
+
+    --text-size-md: 15px;
+
+    /* Elevation — from Figma effect styles */
+    --shadow-sm: 0px 2px 8px 0px rgba(47, 43, 61, 0.12);  /* shadow-sm */
+    --shadow-md: 0px 3px 12px 0px rgba(47, 43, 61, 0.14);  /* shadow-md */
+    --shadow-rail: 0px 2px 4px 0px rgba(47, 43, 61, 0.12); /* collapsed drawer */
+
+    /* Local layout constants (no token equivalent — flagged) */
+    --sidebar-width: 260px;
+    --rail-width: 70px;
+    --group-gap: 6px;
+    --select-width: 300px;
+    --field-px: 14px;
+    --avatar-size: 38px;
+    --icon-size: 22px;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    background: var(--misc-body-bg);
+    color: var(--theme-text-primary);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    display: flex;
+    align-items: stretch;
+    height: 100vh;
+    background: var(--misc-body-bg);
+  }
+
+  /* ---------------- Sidebar ---------------- */
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    width: var(--sidebar-width);
+    flex-shrink: 0;
+    height: 100%;
+    background: var(--misc-paper);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    z-index: 2;
+    transition: width .22s ease;
+  }
+
+  .logo-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--padding-3) var(--padding-4) var(--padding-2);
+    width: 100%;
+    flex-shrink: 0;
+  }
+  .logo-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-2);
+    height: 48px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    color: inherit;
+    font: inherit;
+  }
+  .logo-mark {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+  }
+  .logo-mark svg { display: block; width: 100%; height: 100%; }
+  .logo-text {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: .2px;
+    white-space: nowrap;
+  }
+  .logo-text .lg-ez { color: var(--logo-ez); }
+  .logo-text .lg-one { color: var(--logo-one); }
+  .logo-text .lg-admin { color: var(--logo-admin); font-weight: 500; }
+
+  .pin-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--theme-text-secondary);
+    cursor: pointer;
+    border-radius: var(--border-radius-sm);
+  }
+  .pin-btn:hover { color: var(--theme-text-primary); }
+  .pin-btn:focus-visible, .logo-btn:focus-visible {
+    outline: 2px solid var(--color-palette-primary-main);
+    outline-offset: 2px;
+  }
+  .pin-btn svg { display: block; width: 100%; height: 100%; }
+
+  .menu-drawer {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 0;
+    min-height: 0;
+    width: 100%;
+    padding: 0 var(--padding-3);
+    overflow: hidden;
+  }
+  .pages {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 0;
+    min-height: 0;
+    padding-bottom: var(--padding-2);
+  }
+  .pages-scroll {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 0;
+    min-height: 0;
+    gap: var(--padding-2);
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: var(--padding-1);
+  }
+  .pages-scroll::-webkit-scrollbar { width: 6px; }
+  .pages-scroll::-webkit-scrollbar-thumb { background: var(--theme-divider); border-radius: var(--border-round); }
+  .pages-scroll { scrollbar-width: thin; scrollbar-color: var(--theme-divider) transparent; }
+
+  .nav-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--group-gap);
+    width: 100%;
+    flex-shrink: 0;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-2);
+    padding: var(--padding-2) var(--padding-3);
+    border-radius: var(--border-radius-md);
+    width: 100%;
+    flex-shrink: 0;
+    cursor: pointer;
+    color: var(--theme-text-primary);
+    background: transparent;
+    border: 0;
+    text-align: left;
+    font: inherit;
+  }
+  .nav-item:hover { background: var(--theme-action-hover); }
+  .nav-item:focus-visible {
+    outline: 2px solid var(--color-palette-primary-main);
+    outline-offset: -2px;
+  }
+
+  .nav-icon {
+    width: var(--icon-size);
+    height: var(--icon-size);
+    flex-shrink: 0;
+    color: var(--theme-text-primary);
+  }
+  .nav-icon svg { display: block; width: 100%; height: 100%; }
+
+  .nav-label {
+    flex: 1 0 0;
+    min-width: 0;
+    font-size: var(--text-size-md);
+    line-height: 22px;
+    word-break: break-word;
+    color: inherit;
+  }
+
+  /* Dropdown chevron (replaces the old "more" dots) */
+  .nav-caret {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--icon-size);
+    height: var(--icon-size);
+    flex-shrink: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--theme-text-secondary);
+    cursor: pointer;
+    border-radius: var(--border-radius-sm);
+    transition: transform .18s ease, color .15s ease;
+  }
+  .nav-caret:hover { color: var(--theme-text-primary); }
+  .nav-caret:focus-visible {
+    outline: 2px solid var(--color-palette-primary-main);
+    outline-offset: -2px;
+  }
+  .nav-caret svg { display: block; width: 18px; height: 18px; }
+  .nav-group.is-closed .nav-caret { transform: rotate(-90deg); }
+
+  /* Collapsible children */
+  .nav-children {
+    display: flex;
+    flex-direction: column;
+    gap: var(--group-gap);
+    width: 100%;
+  }
+  .nav-group.is-closed .nav-children { display: none; }
+
+  .nav-child {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-2);
+    padding: var(--padding-2) var(--padding-3);
+    border-radius: var(--border-radius-md);
+    width: 100%;
+    flex-shrink: 0;
+    cursor: pointer;
+    color: var(--theme-text-primary);
+  }
+  .nav-child:hover { background: var(--theme-action-hover); }
+  .nav-child:focus-visible {
+    outline: 2px solid var(--color-palette-primary-main);
+    outline-offset: -2px;
+  }
+
+  .nav-bullet {
+    width: var(--icon-size);
+    height: 12px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--theme-text-secondary);
+  }
+  .nav-bullet svg { display: block; width: 12px; height: 12px; }
+  .nav-child .nav-label { line-height: 22px; }
+
+  .nav-child.is-selected { background: var(--color-palette-primary-main); }
+  .nav-child.is-selected .nav-label { color: var(--misc-bg-white-text); }
+  .nav-child.is-selected .nav-bullet { color: var(--misc-bg-white-text); }
+  .nav-child.is-selected:hover { background: var(--color-palette-primary-dark); }
+
+  /* ---------------- COLLAPSED (mini rail) ---------------- */
+  .app.is-collapsed .sidebar { width: var(--rail-width); box-shadow: var(--shadow-rail); }
+  .app.is-collapsed .logo-row { justify-content: center; padding: var(--padding-3) 0; height: 70px; }
+  .app.is-collapsed .logo-text,
+  .app.is-collapsed .pin-btn,
+  .app.is-collapsed .nav-label,
+  .app.is-collapsed .nav-caret,
+  .app.is-collapsed .nav-children { display: none; }
+  .app.is-collapsed .logo-btn { height: 48px; gap: 0; }
+  .app.is-collapsed .logo-mark { width: 48px; height: 48px; }
+  .app.is-collapsed .menu-drawer { padding: 0 var(--padding-3); }
+  .app.is-collapsed .pages-scroll { gap: var(--gap-2); }
+  .app.is-collapsed .nav-group { gap: var(--gap-2); }
+  .app.is-collapsed .nav-item { justify-content: center; padding: var(--padding-2) var(--padding-3); }
+  .app.is-collapsed .nav-icon { color: var(--theme-text-secondary); }
+  .app.is-collapsed .nav-item:hover .nav-icon { color: var(--theme-text-primary); }
+
+  /* ---------------- Right container ---------------- */
+  .container {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 0;
+    min-width: 0;
+    height: 100%;
+  }
+
+  .nav-wrap {
+    display: flex;
+    flex-direction: column;
+    padding: var(--misc-card-header) var(--misc-card-header) 0;
+    width: 100%;
+    flex-shrink: 0;
+  }
+
+  .nav-header {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-2);
+    width: 100%;
+    padding: var(--padding-2) var(--padding-4);
+    background: var(--misc-paper);
+    border-radius: var(--border-radius-sm);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+
+  .search { display: flex; align-items: center; gap: var(--padding-2); flex-shrink: 0; }
+  .icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--padding-2);
+    border-radius: var(--border-round);
+    border: 0;
+    background: transparent;
+    color: var(--theme-text-secondary);
+    cursor: pointer;
+  }
+  .icon-btn:hover { background: var(--theme-action-hover); color: var(--theme-text-primary); }
+  .icon-btn:focus-visible { outline: 2px solid var(--color-palette-primary-main); outline-offset: -2px; }
+  .icon-btn svg { display: block; width: var(--icon-size); height: var(--icon-size); }
+
+  .search-placeholder {
+    font-size: var(--text-size-md);
+    line-height: 24px;
+    color: var(--theme-text-disabled);
+    white-space: nowrap;
+    font-family: inherit; /* Roboto */
+  }
+
+  .actions {
+    display: flex;
+    flex: 1 0 0;
+    min-width: 0;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--padding-3);
+  }
+
+  .select { width: var(--select-width); max-width: 100%; flex-shrink: 0; }
+  .select-field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: var(--padding-2) var(--field-px);
+    background: var(--misc-paper);
+    border: 1px solid var(--theme-input-border);
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+  }
+  .select-field:hover { border-color: var(--theme-text-secondary); }
+  .select-field:focus-visible { outline: 2px solid var(--color-palette-primary-main); outline-offset: -1px; }
+  .select-value {
+    flex: 1 0 0;
+    min-width: 0;
+    font-size: 14px;
+    line-height: 22px;
+    color: var(--theme-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .select-chevron { width: 16px; height: 16px; flex-shrink: 0; color: var(--theme-text-secondary); }
+  .select-chevron svg { display: block; width: 100%; height: 100%; }
+
+  .tools { display: flex; align-items: center; gap: var(--padding-1); flex-shrink: 0; }
+
+  .bell-wrap { position: relative; }
+  .badge {
+    position: absolute;
+    top: 7px; right: 7px;
+    width: 8px; height: 8px;
+    border-radius: var(--border-round);
+    background: var(--color-palette-error-main);
+    border: 1.5px solid var(--misc-paper);
+  }
+
+  .avatar {
+    width: var(--avatar-size);
+    height: var(--avatar-size);
+    flex-shrink: 0;
+    border-radius: var(--border-round);
+    background: var(--misc-avatar-bg);
+    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .body {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 0;
+    min-height: 0;
+    width: 100%;
+    padding: var(--misc-card-header);
+  }
+  .card {
+    flex: 1 0 0;
+    min-height: 0;
+    width: 100%;
+    background: var(--misc-paper);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-md);
+  }
+
+  /* ============================================================
+     QUICK SETUP — Global Setup Progress Bar + Panel
+     SRS: ezAdmin_SRS Thanh tiến trình điều hướng — Quick Setup
+     Figma mockup: node 57580:30490
+     ============================================================ */
+  :root {
+    --qs-track: var(--theme-action-selected);
+    --qs-done: #28C76F;              /* Color/Success/success-500 */
+    --qs-done-soft: #28C76F14;       /* Opacity Color/Success/success-8 */
+    --qs-primary-soft: #186FF414;    /* Opacity Color/Primary/primary-8 */
+    --qs-primary-16: #186FF429;      /* Opacity Color/Primary/primary-16 */
+    --qs-grey-light: #FAFAFA;        /* Misc/grey-light */
+    --qs-panel-w: 480px;   /* chiều ngang dropdown */
+    --qs-panel-h: 720px;   /* chiều cao dropdown — vượt quá thì cuộn dọc */
+    --qs-trigger-h: 38px;
+  }
+
+  .qs { position: relative; flex-shrink: 0; }
+  .nav-header { overflow: visible; }   /* cho popover tràn ra ngoài */
+  [hidden] { display: none !important; }  /* để hidden thắng display của component */
+  /* cho phép cụm search co lại, nhường chỗ cho trigger tiến độ */
+  .search { min-width: 0; overflow: hidden; }
+  .search-placeholder { overflow: hidden; text-overflow: ellipsis; }
+
+  /* ---------- Trigger (khung chung) ---------- */
+  .qs-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--gap-2);
+    height: var(--qs-trigger-h);
+    padding: 0 var(--padding-3);
+    border: 1px solid var(--theme-input-border);
+    border-radius: var(--border-round);
+    background: var(--misc-paper);
+    color: var(--theme-text-primary);
+    font: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: border-color .15s ease, background .15s ease;
+  }
+  .qs-trigger:hover { border-color: var(--color-palette-primary-main); background: var(--qs-primary-soft); }
+  .qs-trigger:focus-visible { outline: 2px solid var(--color-palette-primary-main); outline-offset: 2px; }
+  .qs-trigger.is-open { border-color: var(--color-palette-primary-main); background: var(--qs-primary-soft); }
+
+  .qs-t-label { font-size: 13px; line-height: 1; color: var(--theme-text-secondary); }
+  .qs-t-count {
+    font-size: 13px; font-weight: 700; line-height: 1;
+    color: var(--color-palette-primary-main);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- PA1: vòng tròn % ---------- */
+  .qs-ring { width: 26px; height: 26px; flex-shrink: 0; display: block; }
+  .qs-ring circle { fill: none; stroke-width: 3.2; }
+  .qs-ring .qs-ring-bg { stroke: var(--qs-track); }
+  .qs-ring .qs-ring-fg {
+    stroke: var(--color-palette-primary-main);
+    stroke-linecap: round;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+    transition: stroke-dashoffset .45s cubic-bezier(.4,0,.2,1);
+  }
+  .qs-ring-text {
+    font-size: 9px; font-weight: 700;
+    fill: var(--theme-text-primary);
+    text-anchor: middle; dominant-baseline: central;
+  }
+
+  /* ---------- PA2: thanh ngang ---------- */
+  .qs-bar-wrap { display: flex; flex-direction: column; gap: 3px; min-width: 140px; }
+  .qs-bar-top { display: flex; align-items: baseline; justify-content: space-between; gap: var(--gap-2); }
+  .qs-track {
+    position: relative; height: 6px; width: 100%;
+    border-radius: var(--border-round);
+    background: var(--qs-track); overflow: hidden;
+  }
+  .qs-fill {
+    position: absolute; inset: 0 auto 0 0; width: 0%;
+    border-radius: var(--border-round);
+    background: linear-gradient(90deg, var(--color-palette-primary-main), var(--logo-ez));
+    transition: width .45s cubic-bezier(.4,0,.2,1);
+  }
+  .qs[data-variant="2"] .qs-trigger { border-radius: var(--border-radius-md); }
+
+  /* ---------- PA3: nút mở drawer ---------- */
+  .qs-spark { display: inline-flex; width: 20px; height: 20px; color: var(--color-palette-primary-main); flex-shrink: 0; }
+  .qs-spark svg { width: 100%; height: 100%; display: block; }
+  .qs[data-variant="3"] .qs-trigger { background: var(--qs-primary-soft); border-color: var(--qs-primary-16); }
+  .qs[data-variant="3"] .qs-trigger:hover { background: var(--qs-primary-16); }
+  .qs-mini-track {
+    width: 54px; height: 5px; flex-shrink: 0; position: relative; overflow: hidden;
+    border-radius: var(--border-round); background: var(--qs-track);
+  }
+
+  /* ---------- Backdrop (drawer) ---------- */
+  .qs-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(47, 43, 61, 0.5);
+    opacity: 0; pointer-events: none;
+    transition: opacity .22s ease;
+    z-index: 40;
+  }
+  .qs-backdrop.is-open { opacity: 1; pointer-events: auto; }
+
+  /* ---------- PANEL (dùng chung 3 PA) ---------- */
+  .qs-panel {
+    position: fixed; z-index: 50;
+    width: var(--qs-panel-w);
+    max-width: calc(100vw - 2 * var(--padding-4));
+    background: var(--misc-paper);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-md), 0 12px 32px rgba(47, 43, 61, 0.16);
+    display: none; flex-direction: column; overflow: hidden;
+  }
+  .qs-panel.is-open { display: flex; }
+
+  .qs-panel[data-mode="popover"] {
+    /* cao 720px; nếu viewport thấp hơn thì bám theo viewport — phần thân tự cuộn */
+    height: min(var(--qs-panel-h), calc(100vh - 90px));
+    max-height: calc(100vh - 90px);
+    animation: qsPop .18s cubic-bezier(.2,.8,.3,1);
+  }
+  @keyframes qsPop {
+    from { opacity: 0; transform: translateY(-6px) scale(.985); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  .qs-panel[data-mode="drawer"] {
+    top: 0; right: 0; bottom: 0;
+    width: min(var(--qs-panel-w), 100vw); max-width: 100vw;
+    height: 100vh; max-height: 100vh;
+    border-radius: 0;
+    transform: translateX(100%);
+    transition: transform .26s cubic-bezier(.2,.8,.3,1);
+  }
+  .qs-panel[data-mode="drawer"].is-open { transform: translateX(0); }
+
+  /* ---------- Panel header ---------- */
+  .qs-head {
+    display: flex; align-items: flex-start; gap: var(--gap-3);
+    padding: var(--padding-4);
+    border-bottom: 1px solid var(--theme-divider);
+    flex-shrink: 0;
+  }
+  /* gap nhỏ (4px) để title — dòng đếm — progress bám sát nhau thành một cụm */
+  .qs-head-main { flex: 1 0 0; min-width: 0; display: flex; flex-direction: column; gap: var(--padding-1); }
+  .qs-title { margin: 0; font-size: 16px; font-weight: 500; line-height: 22px; color: var(--theme-text-primary); }
+  .qs-sub {
+    display: flex; align-items: center; gap: var(--gap-2);
+    margin: 0;
+    font-size: 13px; line-height: 18px; color: var(--theme-text-secondary);
+  }
+  .qs-sub b { color: var(--color-palette-primary-main); font-variant-numeric: tabular-nums; }
+  .qs-head-track {
+    position: relative; height: 6px; overflow: hidden;
+    border-radius: var(--border-round); background: var(--qs-track);
+  }
+  .qs-close {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; flex-shrink: 0;
+    border: 0; background: transparent; cursor: pointer;
+    border-radius: var(--border-round); color: var(--theme-text-secondary);
+  }
+  .qs-close:hover { background: var(--theme-action-hover); color: var(--theme-text-primary); }
+  .qs-close:focus-visible { outline: 2px solid var(--color-palette-primary-main); outline-offset: -2px; }
+  .qs-close svg { width: 20px; height: 20px; display: block; }
+
+  /* ---------- Panel body ---------- */
+  .qs-body {
+    flex: 1 1 auto; min-height: 0; overflow-y: auto;
+    padding: var(--padding-3) var(--padding-4) var(--padding-4);
+    display: flex; flex-direction: column; gap: var(--padding-3);
+  }
+  .qs-body::-webkit-scrollbar { width: 6px; }
+  .qs-body::-webkit-scrollbar-thumb { background: var(--theme-divider); border-radius: var(--border-round); }
+  .qs-body { scrollbar-width: thin; scrollbar-color: var(--theme-divider) transparent; }
+
+  /* ---------- Nhóm (accordion) ---------- */
+  /* flex-shrink:0 — nếu không, các nhóm bị nén lại và overflow:hidden cắt mất nội dung */
+  .qs-group {
+    flex: 0 0 auto;
+    border: 1px solid var(--theme-divider);
+    border-radius: var(--border-radius-md);
+    overflow: hidden;
+  }
+
+  .qs-g-head {
+    display: flex; align-items: center; gap: var(--gap-2);
+    width: 100%; padding: var(--padding-3);
+    border: 0; background: var(--qs-grey-light);
+    cursor: pointer; font: inherit; text-align: left;
+    transition: background .15s ease;
+  }
+  .qs-g-head:hover { background: var(--theme-action-hover); }
+  .qs-g-head:focus-visible { outline: 2px solid var(--color-palette-primary-main); outline-offset: -2px; }
+
+  .qs-g-caret { width: 18px; height: 18px; flex-shrink: 0; color: var(--theme-text-secondary); transition: transform .2s ease; }
+  .qs-g-caret svg { width: 100%; height: 100%; display: block; }
+  .qs-group.is-closed .qs-g-caret { transform: rotate(-90deg); }
+
+  .qs-g-name { flex: 1 0 0; min-width: 0; font-size: 14px; font-weight: 500; line-height: 20px; color: var(--theme-text-primary); }
+  .qs-g-count {
+    flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; line-height: 18px; color: var(--theme-text-secondary);
+    font-variant-numeric: tabular-nums;
+  }
+  .qs-g-count b { color: var(--theme-text-primary); font-weight: 500; }
+  .qs-group.is-done .qs-g-count, .qs-group.is-done .qs-g-count b { color: var(--qs-done); }
+  .qs-group.is-done .qs-g-head { background: var(--qs-done-soft); }
+
+  .qs-g-body { display: flex; flex-direction: column; }
+  .qs-group.is-closed .qs-g-body { display: none; }
+
+  /* ---------- Bước ---------- */
+  .qs-step {
+    display: flex; align-items: flex-start; gap: var(--gap-3);
+    padding: var(--padding-3);
+    border-top: 1px solid var(--theme-divider);
+    background: var(--misc-paper);
+    cursor: pointer; transition: background .15s ease;
+  }
+  .qs-g-body > .qs-step:first-child { border-top: 0; }
+  .qs-step:hover { background: var(--qs-primary-soft); }
+  .qs-step:focus-visible { outline: 2px solid var(--color-palette-primary-main); outline-offset: -2px; }
+
+  .qs-mark {
+    width: 24px; height: 24px; flex-shrink: 0;
+    border-radius: var(--border-round);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 500;
+    background: var(--theme-action-selected);
+    color: var(--theme-text-secondary);
+    transition: background .2s ease, color .2s ease;
+  }
+  .qs-mark svg { width: 15px; height: 15px; display: block; }
+  .qs-step.is-done .qs-mark { background: var(--qs-done); color: var(--misc-bg-white-text); }
+
+  .qs-s-main { flex: 1 0 0; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  /* Tên chức năng: một style duy nhất cho mọi trạng thái — không gạch chân, không mũi tên */
+  .qs-s-name {
+    font-size: 14px; line-height: 20px; font-weight: 500;
+    color: var(--theme-text-primary);
+    text-decoration: none;
+  }
+  /* Dòng điều kiện hoàn thành — chỉ render ở bước CHƯA hoàn thành */
+  .qs-s-cond { font-size: 12px; line-height: 18px; color: var(--theme-text-disabled); }
+
+  /* Icon điều hướng — chỉ hiện khi hover / focus vào bước */
+  .qs-go {
+    flex-shrink: 0; align-self: center;
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px;
+    border: 0; padding: 0;
+    border-radius: var(--border-round);
+    background: var(--qs-primary-16);
+    color: var(--color-palette-primary-main);
+    cursor: pointer;
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: opacity .16s ease, transform .16s ease, background .15s ease;
+    pointer-events: none;
+  }
+  .qs-go svg { width: 16px; height: 16px; display: block; }
+  .qs-step:hover .qs-go,
+  .qs-step:focus-visible .qs-go,
+  .qs-go:focus-visible {
+    opacity: 1; transform: none; pointer-events: auto;
+  }
+  .qs-go:hover { background: var(--color-palette-primary-main); color: var(--misc-bg-white-text); }
+  .qs-go:focus-visible { outline: 2px solid var(--color-palette-primary-main); outline-offset: 2px; }
+  /* Thiết bị cảm ứng / người dùng giảm chuyển động: luôn hiện icon */
+  @media (hover: none) {
+    .qs-go { opacity: 1; transform: none; pointer-events: auto; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .qs-go { transition: none; }
+  }
+
+  /* ---------- Panel footer ---------- */
+  .qs-foot {
+    display: flex; align-items: center; justify-content: space-between; gap: var(--gap-2);
+    padding: var(--padding-3) var(--padding-4);
+    border-top: 1px solid var(--theme-divider);
+    background: var(--qs-grey-light);
+    flex-shrink: 0;
+  }
+  .qs-foot-note { font-size: 12px; line-height: 18px; color: var(--theme-text-secondary); }
+  .qs-foot-note b { color: var(--theme-text-primary); }
+
+  /* ---------- Bộ chuyển phương án (demo) ---------- */
+  .qs-variant-switch {
+    position: fixed; left: 50%; bottom: 16px;
+    transform: translateX(-50%); z-index: 60;
+    display: inline-flex; align-items: center; gap: 2px;
+    padding: 4px; border-radius: var(--border-round);
+    background: var(--misc-paper);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--theme-divider);
+  }
+  .qs-variant-switch > span { font-size: 11px; color: var(--theme-text-disabled); padding: 0 var(--padding-2); }
+  .qs-vbtn {
+    padding: 5px var(--padding-3); font-size: 12px; font-family: inherit;
+    border: 0; border-radius: var(--border-round);
+    background: transparent; color: var(--theme-text-secondary);
+    cursor: pointer; white-space: nowrap;
+  }
+  .qs-vbtn:hover { background: var(--theme-action-hover); }
+  .qs-vbtn.is-active { background: var(--color-palette-primary-main); color: var(--misc-bg-white-text); }
+  .qs-vbtn:focus-visible { outline: 2px solid var(--color-palette-primary-main); outline-offset: 1px; }
+
+  @media (max-width: 768px) {
+    :root { --sidebar-width: 240px; }
+    .select { width: 260px; }
+  }
+  @media (max-width: 600px) {
+    .select { width: 180px; }
+    .search-placeholder { display: none; }
+    .actions { gap: var(--padding-2); }
+    /* Trigger rút gọn: chỉ còn vòng tròn %/icon + A/B */
+    .qs-t-label { display: none; }
+    .qs-bar-wrap { min-width: 0; }
+    .qs[data-variant="2"] .qs-track { width: 48px; }
+    .qs[data-variant="3"] .qs-mini-track { display: none; }
+    .qs-trigger { padding: 0 var(--padding-2); gap: 6px; height: 32px; }
+    .qs-panel[data-mode="popover"] { max-height: calc(100vh - 76px); }
+    /* nhường chỗ cho trigger trên màn hẹp */
+    .search { display: none; }
+    .actions { gap: 6px; }
+  }
+</style>
+</head>
+<body>
+  <div class="app" id="app">
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="sidebar" aria-label="Điều hướng chính">
+      <div class="logo-row">
+        <button class="logo-btn" type="button" id="logoBtn" aria-label="Mở rộng menu">
+          <span class="logo-mark" aria-hidden="true">
+            <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="24" cy="24" r="24" fill="var(--logo-emblem)" />
+              <g transform="translate(6 6) scale(1.5)" fill="#ffffff" fill-rule="evenodd">
+                <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94L14.4 2.81c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41L9.25 5.35C8.66 5.59 8.12 5.92 7.63 6.29L5.24 5.33c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58C4.84 11.36 4.8 11.69 4.8 12s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.03-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
+              </g>
+            </svg>
+          </span>
+          <span class="logo-text"><span class="lg-ez">ez</span><span class="lg-one">One</span>&nbsp;<span class="lg-admin">Admin</span></span>
+        </button>
+        <button class="pin-btn" type="button" id="pinBtn" aria-label="Bỏ ghim / thu gọn menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 4.5l-4 4l-4 1.5l-1.5 1.5l7 7l1.5 -1.5l1.5 -4l4 -4" />
+            <path d="M9 15l-4.5 4.5" />
+            <path d="M14.5 4l5.5 5.5" />
+          </svg>
+        </button>
+      </div>
+
+      <nav class="menu-drawer" aria-label="Menu">
+        <div class="pages">
+          <div class="pages-scroll">
+
+            <!-- Màn hình chính (single) -->
+            <button class="nav-item" type="button" title="Màn hình chính">
+              <span class="nav-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M19 8.71l-5.333 -4.148a2.666 2.666 0 0 0 -3.274 0l-5.334 4.148a2.665 2.665 0 0 0 -1.029 2.105v7.2a1.6 1.6 0 0 0 1.6 1.585h4a1 1 0 0 0 1 -1v-4a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h4a1.6 1.6 0 0 0 1.6 -1.585v-7.2a2.665 2.665 0 0 0 -1.03 -2.105z" />
+                </svg>
+              </span>
+              <span class="nav-label">Màn hình chính</span>
+            </button>
+
+            <!-- Khách sạn -->
+            <div class="nav-group">
+              <div class="nav-item" role="button" tabindex="0" title="Khách sạn">
+                <span class="nav-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 21l18 0" /><path d="M5 21v-14l6 -4v18" /><path d="M19 21v-10l-6 -4" />
+                    <path d="M9 9l0 .01" /><path d="M9 12l0 .01" /><path d="M9 15l0 .01" /><path d="M9 18l0 .01" />
+                  </svg>
+                </span>
+                <span class="nav-label">Khách sạn</span>
+                <button class="nav-caret" type="button" aria-label="Thu gọn/mở nhóm Khách sạn" aria-expanded="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6l6 -6" /></svg>
+                </button>
+              </div>
+              <div class="nav-children">
+                <div class="nav-child" role="button" tabindex="0"><span class="nav-bullet" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/></svg></span><span class="nav-label">Thông tin khách sạn</span></div>
+                <div class="nav-child" role="button" tabindex="0"><span class="nav-bullet" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/></svg></span><span class="nav-label">Cấu hình khách sạn</span></div>
+                <div class="nav-child" role="button" tabindex="0"><span class="nav-bullet" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/></svg></span><span class="nav-label">Tiện ích khách sạn</span></div>
+              </div>
+            </div>
+
+            <!-- Kho phòng -->
+            <div class="nav-group">
+              <div class="nav-item" role="button" tabindex="0" title="Kho phòng">
+                <span class="nav-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 21l18 0" /><path d="M9 8l1 0" /><path d="M9 12l1 0" /><path d="M9 16l1 0" />
+                    <path d="M14 8l1 0" /><path d="M14 12l1 0" /><path d="M14 16l1 0" />
+                    <path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16" />
+                  </svg>
+                </span>
+                <span class="nav-label">Kho phòng</span>
+                <button class="nav-caret" type="button" aria-label="Thu gọn/mở nhóm Kho phòng" aria-expanded="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6l6 -6" /></svg>
+                </button>
+              </div>
+              <div class="nav-children">
+                <div class="nav-child" role="button" tabindex="0"><span class="nav-bullet" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/></svg></span><span class="nav-label">Loại phòng</span></div>
+                <div class="nav-child" role="button" tabindex="0"><span class="nav-bullet" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/></svg></span><span class="nav-label">Sơ đồ phòng</span></div>
+              </div>
+            </div>
+
+            <!-- Kinh doanh -->
+            <div class="nav-group">
+              <div class="nav-item" role="button" tabindex="0" title="Kinh doanh">
+                <span class="nav-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /><path d="M3.6 9h16.8" /><path d="M3.6 15h16.8" />
+                    <path d="M11.5 3a17 17 0 0 0 0 18" /><path d="M12.5 3a17 17 0 0 1 0 18" />
+                  </svg>
+                </span>
+                <span class="nav-label">Kinh doanh</span>
+                <button class="nav-caret" type="button" aria-label="Thu gọn/mở nhóm Kinh doanh" aria-expanded="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6l6 -6" /></svg>
+                </button>
+              </div>
+              <div class="nav-children">
+                <div class="nav-child" role="button" tabindex="0"><span class="nav-bullet" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/></svg></span><span class="nav-label">Phân khúc thị trường</span></div>
+                <div class="nav-child" role="button" tabindex="0"><span class="nav-bullet" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/></svg></span><span class="nav-label">Phân khúc kinh doanh</span></div>
+                <div class="nav-child" role="button" tabindex="0"><span class="nav-bullet" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/></svg></span><span class="nav-label">Nguồn khách</span></div>
+                <div class="nav-child" role="button" tabindex="0"><span class="nav-bullet" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/></svg></span><span class="nav-label">Kênh bán</span></div>
+                <div class="nav-child" role="button" tabindex="0"><span class="nav-bullet" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/></svg></span><span class="nav-label">Lịch &amp; thời gian</span></div>
+              </div>
+            </div>
+
+            <!-- Sản phẩm & dịch vụ -->
+            <div class="nav-group">
+              <div class="nav-item" role="button" tabindex="0" title="Sản phẩm & dịch vụ">
+                <span class="nav-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5" /><path d="M12 12l8 -4.5" /><path d="M12 12l0 9" /><path d="M12 12l-8 -4.5" /><path d="M16 5.25l-8 4.5" />
+                  </svg>
+                </span>
+                <span class="nav-label">Sản phẩm &amp; dịch vụ</span>
+                <button class="nav-caret" type="button" aria-label="Thu gọn/mở nhóm Sản phẩm và dịch vụ" aria-expanded="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6l6 -6" /></svg>
+                </button>
+              </div>
+              <div class="nav-children">
+                <div class="nav-child" role="button" tabindex="0"><span class="nav-bullet" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/></svg></span><span class="nav-label">Sản phẩm</span></div>
+                <div class="nav-child" role="button" tabindex="0"><span class="nav-bullet" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/></svg></span><span class="nav-label">Đơn vị tính</span></div>
+              </div>
+            </div>
+
+            <!-- Tài chính -->
+            <div class="nav-group">
+              <div class="nav-item" role="button" tabindex="0" title="Tài chính">
+                <span class="nav-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M7 9m0 1a1 1 0 0 1 1 -1h8a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-8a1 1 0 0 1 -1 -1z" />
+                    <path d="M18 9v-1a1 1 0 0 0 -1 -1h-11a2 2 0 0 0 -2 2v6a1 1 0 0 0 1 1h1" />
+                    <path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+                  </svg>
+                </span>
+                <span class="nav-label">Tài chính</span>
+                <button class="nav-caret" type="button" aria-label="Thu gọn/mở nhóm Tài chính" aria-expanded="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6l6 -6" /></svg>
+                </button>
+              </div>
+              <div class="nav-children">
+                <div class="nav-child" role="button" tabindex="0"><span class="nav-bullet" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/></svg></span><span class="nav-label">Tiền tệ &amp; tỷ giá</span></div>
+                <div class="nav-child" role="button" tabindex="0"><span class="nav-bullet" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/></svg></span><span class="nav-label">Tiền tệ &amp; phí</span></div>
+                <div class="nav-child" role="button" tabindex="0"><span class="nav-bullet" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/></svg></span><span class="nav-label">Mã giao dịch</span></div>
+                <div class="nav-child" role="button" tabindex="0"><span class="nav-bullet" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/></svg></span><span class="nav-label">Phương thức thanh toán</span></div>
+              </div>
+            </div>
+
+            <!-- Vận hành -->
+            <div class="nav-group">
+              <div class="nav-item" role="button" tabindex="0" title="Vận hành">
+                <span class="nav-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 21l18 0" /><path d="M3 7v1a3 3 0 0 0 6 0v-1m0 1a3 3 0 0 0 6 0v-1m0 1a3 3 0 0 0 6 0v-1h-18l2 -4h14l2 4" />
+                    <path d="M5 21l0 -10.15" /><path d="M19 21l0 -10.15" /><path d="M9 21v-4a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v4" />
+                  </svg>
+                </span>
+                <span class="nav-label">Vận hành</span>
+                <button class="nav-caret" type="button" aria-label="Thu gọn/mở nhóm Vận hành" aria-expanded="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6l6 -6" /></svg>
+                </button>
+              </div>
+              <div class="nav-children">
+                <div class="nav-child" role="button" tabindex="0"><span class="nav-bullet" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/></svg></span><span class="nav-label">Chính sách làm tròn</span></div>
+                <div class="nav-child" role="button" tabindex="0"><span class="nav-bullet" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/></svg></span><span class="nav-label">Chính sách xử lý sai lệch</span></div>
+                <div class="nav-child" role="button" tabindex="0"><span class="nav-bullet" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/></svg></span><span class="nav-label">Danh mục lý do</span></div>
+                <div class="nav-child" role="button" tabindex="0"><span class="nav-bullet" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/></svg></span><span class="nav-label">Quản lý mẫu</span></div>
+              </div>
+            </div>
+
+            <!-- Cấu hình kết nối -->
+            <div class="nav-group">
+              <div class="nav-item" role="button" tabindex="0" title="Cấu hình kết nối">
+                <span class="nav-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z" />
+                    <path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
+                  </svg>
+                </span>
+                <span class="nav-label">Cấu hình kết nối</span>
+                <button class="nav-caret" type="button" aria-label="Thu gọn/mở nhóm Cấu hình kết nối" aria-expanded="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6l6 -6" /></svg>
+                </button>
+              </div>
+              <div class="nav-children">
+                <div class="nav-child" role="button" tabindex="0"><span class="nav-bullet" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/></svg></span><span class="nav-label">Kết nối cổng thanh toán</span></div>
+                <div class="nav-child is-selected" role="button" tabindex="0" aria-current="page"><span class="nav-bullet" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/></svg></span><span class="nav-label">Kết nối hóa đơn điện tử</span></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- ============ MAIN CONTAINER ============ -->
+    <div class="container">
+      <div class="nav-wrap">
+        <header class="nav-header">
+          <div class="search">
+            <button class="icon-btn" type="button" aria-label="Tìm kiếm">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" />
+              </svg>
+            </button>
+            <span class="search-placeholder">Tìm kiếm theo chức năng</span>
+          </div>
+
+          <div class="actions">
+            <div class="select">
+              <div class="select-field" role="combobox" tabindex="0" aria-haspopup="listbox" aria-expanded="false" aria-label="Chọn chi nhánh">
+                <span class="select-value">Chi nhánh Hà Nội</span>
+                <span class="select-chevron" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6l6 -6" /></svg>
+                </span>
+              </div>
+            </div>
+
+            <!-- ===== Global Setup Progress Bar (Quick Setup) ===== -->
+            <div class="qs" id="qs" data-variant="1">
+              <button class="qs-trigger" type="button" id="qsTrigger"
+                      aria-haspopup="dialog" aria-expanded="false" aria-controls="qsPanel"
+                      aria-label="Thiết lập khách sạn — xem tiến độ hoàn thành thông tin bắt buộc">
+                <!-- PA1: vòng tròn % -->
+                <svg class="qs-ring" viewBox="0 0 36 36" aria-hidden="true" data-pa="1">
+                  <circle class="qs-ring-bg" cx="18" cy="18" r="15.5"></circle>
+                  <circle class="qs-ring-fg" id="qsRing" cx="18" cy="18" r="15.5"
+                          stroke-dasharray="97.39" stroke-dashoffset="97.39"></circle>
+                  <text class="qs-ring-text" id="qsRingPct" x="18" y="18">0%</text>
+                </svg>
+                <!-- PA3: icon tia sét -->
+                <span class="qs-spark" aria-hidden="true" data-pa="3" hidden>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M13 3v7h6l-8 11v-7H5l8 -11" />
+                  </svg>
+                </span>
+
+                <!-- PA1 + PA3: nhãn + A/B -->
+                <span class="qs-t-label" data-pa="1 3">Thiết lập khách sạn</span>
+                <span class="qs-t-count" data-pa="1 3" id="qsCountPill">0/0</span>
+                <!-- PA3: thanh mini -->
+                <span class="qs-mini-track" data-pa="3" aria-hidden="true" hidden>
+                  <span class="qs-fill" data-qs-fill></span>
+                </span>
+
+                <!-- PA2: thanh ngang có nhãn + % -->
+                <span class="qs-bar-wrap" data-pa="2" hidden>
+                  <span class="qs-bar-top">
+                    <span class="qs-t-label">Thiết lập khách sạn</span>
+                    <span class="qs-t-count" id="qsCountBar">0/0</span>
+                  </span>
+                  <span class="qs-track"><span class="qs-fill" data-qs-fill></span></span>
+                </span>
+              </button>
+            </div>
+
+            <div class="tools">
+              <button class="icon-btn" type="button" aria-label="Ứng dụng">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
+                  <path d="M14 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
+                  <path d="M4 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
+                  <path d="M14 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
+                </svg>
+              </button>
+              <div class="bell-wrap">
+                <button class="icon-btn" type="button" aria-label="Thông báo">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6" />
+                    <path d="M9 17v1a3 3 0 0 0 6 0v-1" />
+                  </svg>
+                </button>
+                <span class="badge" aria-hidden="true"></span>
+              </div>
+            </div>
+
+            <div class="avatar" role="img" aria-label="Ảnh đại diện người dùng">
+              <img src="https://www.figma.com/api/mcp/asset/e0f5aab1-49bb-4357-89c7-7a9bed1cb758.png" alt="Ảnh đại diện người dùng" />
+            </div>
+          </div>
+        </header>
+      </div>
+
+      <div class="body">
+        <div class="card"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Quick Setup: backdrop (dùng cho drawer) ===== -->
+  <div class="qs-backdrop" id="qsBackdrop" hidden></div>
+
+  <!-- ===== Quick Setup: panel (dùng chung cho cả 3 phương án) ===== -->
+  <section class="qs-panel" id="qsPanel" data-mode="popover" role="dialog" aria-modal="false"
+           aria-labelledby="qsTitle" hidden>
+    <header class="qs-head">
+      <div class="qs-head-main">
+        <h2 class="qs-title" id="qsTitle">Hoàn thành các thông tin bắt buộc</h2>
+        <p class="qs-sub">
+          <span>Đã hoàn thành <b id="qsHeadCount">0/0</b> bước thiết lập</span>
+        </p>
+        <span class="qs-head-track" aria-hidden="true"><span class="qs-fill" data-qs-fill></span></span>
+      </div>
+      <button class="qs-close" type="button" id="qsClose" aria-label="Đóng">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 6l-12 12" /><path d="M6 6l12 12" />
+        </svg>
+      </button>
+    </header>
+
+    <div class="qs-body" id="qsBody"><!-- render từ JS --></div>
+
+    <footer class="qs-foot">
+      <span class="qs-foot-note">Còn <b id="qsRemain">0</b> bước để sẵn sàng vận hành</span>
+    </footer>
+  </section>
+
+  <!-- ===== Bộ chuyển phương án (chỉ phục vụ demo, gỡ khi tích hợp) ===== -->
+  <div class="qs-variant-switch" role="group" aria-label="Chọn phương án giao diện">
+    <span>Phương án:</span>
+    <button class="qs-vbtn is-active" type="button" data-variant="1">1 · Pill tròn</button>
+    <button class="qs-vbtn" type="button" data-variant="2">2 · Thanh ngang</button>
+    <button class="qs-vbtn" type="button" data-variant="3">3 · Drawer</button>
+  </div>
+
+  <script>
+    (function () {
+      var app = document.getElementById('app');
+      var pinBtn = document.getElementById('pinBtn');
+      var logoBtn = document.getElementById('logoBtn');
+
+      // Pin toggles collapse (unpin -> mini rail). Logo (mini) re-expands.
+      function toggleCollapse() {
+        var collapsed = app.classList.toggle('is-collapsed');
+        logoBtn.setAttribute('aria-label', collapsed ? 'Mở rộng menu' : 'Menu');
+        pinBtn.setAttribute('aria-label', collapsed ? 'Ghim menu' : 'Bỏ ghim / thu gọn menu');
+      }
+      pinBtn.addEventListener('click', toggleCollapse);
+      logoBtn.addEventListener('click', function () {
+        if (app.classList.contains('is-collapsed')) toggleCollapse();
+      });
+
+      // Dropdown carets expand/collapse their group (only in the full drawer).
+      document.querySelectorAll('.nav-caret').forEach(function (caret) {
+        caret.addEventListener('click', function (e) {
+          e.stopPropagation();
+          if (app.classList.contains('is-collapsed')) return;
+          var group = caret.closest('.nav-group');
+          var closed = group.classList.toggle('is-closed');
+          caret.setAttribute('aria-expanded', String(!closed));
+        });
+      });
+
+      // Highlight active child on click (matches the design's selected state).
+      document.querySelectorAll('.nav-child').forEach(function (el) {
+        el.addEventListener('click', function () {
+          document.querySelectorAll('.nav-child.is-selected').forEach(function (s) {
+            s.classList.remove('is-selected');
+            s.removeAttribute('aria-current');
+          });
+          el.classList.add('is-selected');
+          el.setAttribute('aria-current', 'page');
+        });
+        el.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); }
+        });
+      });
+    })();
+  </script>
+
+  <!-- ============================================================
+       QUICK SETUP — logic tiến độ + panel (3 phương án dùng chung)
+       ============================================================ -->
+  <script>
+  (function () {
+    /* ---------- DỮ LIỆU MẪU — sửa ở đây khi nối API/ezOne.Ims ----------
+       done: true = bước đã "Hoàn thành" (tick xanh)
+       cond: "Điều kiện hoàn thành" — subtext lấy từ STEP_DESC trong
+             HotelSetup_v145.html (wizard 10 bước) để đồng bộ nội dung.   */
+    var QS_DATA = [
+      {
+        name: '1. Khai báo dữ liệu chung',
+        steps: [
+          { name: 'Thông tin chung', cond: 'Thông tin này xuất hiện trên hóa đơn, booking confirmation và kênh bán của khách sạn', done: true },
+          { name: 'Thuế, phí',       cond: 'Các loại thuế, phí mà khách sạn sử dụng',   done: true },
+          { name: 'Mã giao dịch',    cond: 'Mã giao dịch của khách sạn',                done: true },
+          { name: 'Loại phòng',      cond: 'Các loại phòng mà khách sạn sử dụng',       done: true },
+          { name: 'Sản phẩm',        cond: 'Sản phẩm và dịch vụ của khách sạn',         done: true }
+        ]
+      },
+      {
+        name: '2. Thông tin giá bán cho khách sạn',
+        steps: [
+          { name: 'Cấu hình bán',            cond: 'Cấu hình các loại giá và quy tắc bán phòng cho hệ thống.',   done: false },
+          { name: 'Chính sách giá',          cond: 'Thiết lập các thông tin về bán giá cho khách sạn của bạn',   done: false },
+          { name: 'Công thức giá',           cond: 'Cấu hình các loại giá và quy tắc bán phòng cho hệ thống.',   done: false },
+          { name: 'Chính sách giá dịch vụ',  cond: 'Thiết lập chính sách giá cho các dịch vụ của khách sạn',     done: false }
+        ]
+      },
+      {
+        name: '3. Thông tin OTA',
+        steps: [
+          { name: 'Kết nối OTA', cond: 'Tạo kết nối để khách sạn của bạn hiển thị trên các kênh OTA', done: false }
+        ]
+      }
+    ];
+
+    var qs         = document.getElementById('qs');
+    var trigger    = document.getElementById('qsTrigger');
+    var panel      = document.getElementById('qsPanel');
+    var backdrop   = document.getElementById('qsBackdrop');
+    var bodyEl     = document.getElementById('qsBody');
+    var closeBtn   = document.getElementById('qsClose');
+    var ring       = document.getElementById('qsRing');
+    var ringPct    = document.getElementById('qsRingPct');
+    var countPill  = document.getElementById('qsCountPill');
+    var countBar   = document.getElementById('qsCountBar');
+    var headCount  = document.getElementById('qsHeadCount');
+    var remainEl   = document.getElementById('qsRemain');
+    var RING_LEN   = 2 * Math.PI * 15.5;   /* r = 15.5 */
+    var variant    = 1;
+    var isOpen     = false;
+
+    /* ---------------- Tính tổng A/B ---------------- */
+    function totals() {
+      var a = 0, b = 0;
+      QS_DATA.forEach(function (g) {
+        g.steps.forEach(function (s) { b++; if (s.done) a++; });
+      });
+      return { a: a, b: b, pct: b ? Math.round((a / b) * 100) : 0 };
+    }
+
+    /* ---------------- Cập nhật mọi progress line ---------------- */
+    function renderProgress() {
+      var t = totals();
+      var text = t.a + '/' + t.b;
+
+      countPill.textContent = text;
+      countBar.textContent = text;
+      headCount.textContent = text;
+      remainEl.textContent = String(t.b - t.a);
+
+      ring.setAttribute('stroke-dasharray', RING_LEN.toFixed(2));
+      ring.setAttribute('stroke-dashoffset', (RING_LEN * (1 - t.pct / 100)).toFixed(2));
+      ringPct.textContent = t.pct + '%';
+
+      document.querySelectorAll('[data-qs-fill]').forEach(function (el) {
+        el.style.width = t.pct + '%';
+      });
+
+      trigger.setAttribute('aria-label',
+        'Thiết lập khách sạn — đã hoàn thành ' + text + ' bước (' + t.pct + '%)');
+    }
+
+    /* ---------------- Icon dùng lại ---------------- */
+    var ICON_CARET = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6l6 -6"/></svg>';
+    var ICON_TICK  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5l9 -9"/></svg>';
+    /* Icon điều hướng (chevron-right) — hiện khi hover vào bước */
+    var ICON_GO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6l-6 6"/></svg>';
+
+    /* ---------------- Render danh sách nhóm/bước ---------------- */
+    function renderGroups() {
+      bodyEl.innerHTML = '';
+
+      QS_DATA.forEach(function (g, gi) {
+        var x = g.steps.filter(function (s) { return s.done; }).length;
+        var y = g.steps.length;
+        var groupDone = x === y;
+
+        var group = document.createElement('div');
+        group.className = 'qs-group' + (groupDone ? ' is-done' : '') + (gi === 0 ? '' : ' is-closed');
+
+        /* --- header nhóm --- */
+        var head = document.createElement('button');
+        head.type = 'button';
+        head.className = 'qs-g-head';
+        head.setAttribute('aria-expanded', String(gi === 0));
+        head.innerHTML =
+          '<span class="qs-g-caret" aria-hidden="true">' + ICON_CARET + '</span>' +
+          '<span class="qs-g-name"></span>' +
+          '<span class="qs-g-count">Đã hoàn thành: <b>' + x + '/' + y + '</b></span>';
+        head.querySelector('.qs-g-name').textContent = g.name;
+        head.addEventListener('click', function () {
+          var closed = group.classList.toggle('is-closed');
+          head.setAttribute('aria-expanded', String(!closed));
+        });
+        group.appendChild(head);
+
+        /* --- thân nhóm --- */
+        var gBody = document.createElement('div');
+        gBody.className = 'qs-g-body';
+
+        /* các bước */
+        g.steps.forEach(function (s, si) {
+          var step = document.createElement('div');
+          step.className = 'qs-step' + (s.done ? ' is-done' : '');
+          step.setAttribute('role', 'button');
+          step.setAttribute('tabindex', '0');
+          /* Bước đã hoàn thành: không hiển thị dòng điều kiện hoàn thành */
+          step.innerHTML =
+            '<span class="qs-mark" aria-hidden="true">' + (s.done ? ICON_TICK : (si + 1)) + '</span>' +
+            '<span class="qs-s-main">' +
+              '<span class="qs-s-name"></span>' +
+              (s.done ? '' : '<span class="qs-s-cond"></span>') +
+            '</span>' +
+            '<button class="qs-go" type="button" tabindex="-1">' + ICON_GO + '</button>';
+          step.querySelector('.qs-s-name').textContent = s.name;
+          if (!s.done) step.querySelector('.qs-s-cond').textContent = s.cond;
+          step.setAttribute('aria-label', 'Đi đến màn hình khai báo: ' + s.name);
+
+          var go = step.querySelector('.qs-go');
+          go.setAttribute('aria-label', 'Đi đến màn hình khai báo: ' + s.name);
+          go.addEventListener('click', function (e) { e.stopPropagation(); step.click(); });
+
+          /* Click vào bước = điều hướng sang màn hình khai báo tương ứng */
+          step.addEventListener('click', function () {
+            console.log('[Quick Setup] Điều hướng đến màn hình khai báo:', s.name);
+          });
+          step.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); step.click(); }
+          });
+
+          gBody.appendChild(step);
+        });
+
+        group.appendChild(gBody);
+        bodyEl.appendChild(group);
+      });
+    }
+
+    function update() { renderGroups(); renderProgress(); }
+
+    /* API cập nhật trạng thái bước từ bên ngoài (thay cho nút đánh dấu đã bỏ).
+       Khi nối API/ezOne.Ims: gọi qsSetStepDone(chỉ_số_nhóm, chỉ_số_bước, true/false)
+       — mọi thanh tiến độ và bộ đếm X/Y sẽ tự cập nhật real-time. */
+    window.qsSetStepDone = function (groupIndex, stepIndex, done) {
+      var g = QS_DATA[groupIndex];
+      if (!g || !g.steps[stepIndex]) return false;
+      g.steps[stepIndex].done = !!done;
+      g.steps[stepIndex].wasDone = !!done;
+      update();
+      return true;
+    };
+
+    /* ---------------- Định vị popover dưới trigger ---------------- */
+    function positionPopover() {
+      if (variant === 3) return;
+      var r = trigger.getBoundingClientRect();
+      var w = panel.offsetWidth;
+      var left = Math.min(r.right - w, window.innerWidth - w - 8);
+      panel.style.left = Math.max(8, left) + 'px';
+      panel.style.top = (r.bottom + 8) + 'px';
+      panel.style.right = 'auto';
+      panel.style.bottom = 'auto';
+    }
+
+    /* ---------------- Mở / đóng panel ---------------- */
+    function openPanel() {
+      if (isOpen) return;
+      isOpen = true;
+      panel.hidden = false;
+      panel.classList.add('is-open');
+      trigger.classList.add('is-open');
+      trigger.setAttribute('aria-expanded', 'true');
+
+      if (variant === 3) {
+        backdrop.hidden = false;
+        /* ép reflow để transition trượt chạy */
+        void backdrop.offsetWidth;
+        backdrop.classList.add('is-open');
+        panel.setAttribute('aria-modal', 'true');
+      } else {
+        positionPopover();
+        panel.setAttribute('aria-modal', 'false');
+      }
+      closeBtn.focus();
+    }
+
+    function closePanel() {
+      if (!isOpen) return;
+      isOpen = false;
+      panel.classList.remove('is-open');
+      trigger.classList.remove('is-open');
+      trigger.setAttribute('aria-expanded', 'false');
+      backdrop.classList.remove('is-open');
+      /* chờ transition drawer xong mới ẩn hẳn */
+      window.setTimeout(function () {
+        if (!isOpen) { panel.hidden = true; backdrop.hidden = true; }
+      }, variant === 3 ? 260 : 0);
+      trigger.focus();
+    }
+
+    trigger.addEventListener('click', function () { isOpen ? closePanel() : openPanel(); });
+    closeBtn.addEventListener('click', closePanel);
+    backdrop.addEventListener('click', closePanel);
+
+    /* Esc để đóng */
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && isOpen) closePanel();
+    });
+
+    /* Click ra ngoài (popover) */
+    document.addEventListener('mousedown', function (e) {
+      if (!isOpen || variant === 3) return;
+      if (panel.contains(e.target) || qs.contains(e.target)) return;
+      closePanel();
+    });
+
+    window.addEventListener('resize', function () { if (isOpen) positionPopover(); });
+    window.addEventListener('scroll', function () { if (isOpen) positionPopover(); }, true);
+
+    /* ---------------- Chuyển phương án ---------------- */
+    function setVariant(v) {
+      variant = v;
+      if (isOpen) closePanel();
+      qs.setAttribute('data-variant', String(v));
+      panel.setAttribute('data-mode', v === 3 ? 'drawer' : 'popover');
+      /* reset toạ độ inline khi sang drawer */
+      if (v === 3) { panel.style.left = ''; panel.style.top = ''; panel.style.right = ''; panel.style.bottom = ''; }
+
+      /* hiện/ẩn các mảnh trigger theo phương án */
+      /* dùng setAttribute vì phần tử SVG không hỗ trợ property .hidden */
+      trigger.querySelectorAll('[data-pa]').forEach(function (el) {
+        var list = el.getAttribute('data-pa').split(' ');
+        if (list.indexOf(String(v)) === -1) el.setAttribute('hidden', '');
+        else el.removeAttribute('hidden');
+      });
+
+      document.querySelectorAll('.qs-vbtn').forEach(function (b) {
+        b.classList.toggle('is-active', Number(b.getAttribute('data-variant')) === v);
+      });
+      renderProgress();
+    }
+
+    document.querySelectorAll('.qs-vbtn').forEach(function (b) {
+      b.addEventListener('click', function () { setVariant(Number(b.getAttribute('data-variant'))); });
+    });
+
+    /* ---------------- Khởi tạo ---------------- */
+    var urlVariant = Number(new URLSearchParams(location.search).get('variant'));
+    update();
+    setVariant([1, 2, 3].indexOf(urlVariant) !== -1 ? urlVariant : 1);
+  })();
+  </script>
+</body>
+</html>
